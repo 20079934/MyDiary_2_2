@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">My Diary</string>
+    <string name="image_text">Image</string>
+    <string name="hint_diaryTopic">Topic</string>
+    <string name="hint_diaryEntry">How was your day?</string>
+    <string name="button_addImage">Include an image</string>
+    <string name="button_addEntry">Submit Entry</string>
+    <string name="select_entry_image">Select entry image</string>
+    <string name="menu_new_entry">New Entry</string>
+    <string name="nav_header_image">Navigation Header</string>
+    <string name="nav_header_title">My Diary</string>
+    <string name="nav_header_subtitle">20079934</string>
+    <string name="menu_update_name">Rename Diary</string>
+    <string name="menu_addEntry">Add Entry</string>
+    <string name="menu_renameDiary">Rename Diary</string>
+    <string name="button_changeImage">Change Image</string>
+    <string name="menu_invalidEntry">Please add an entry</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="hint_diaryName">Name</string>
+    <string name="menu_emptyName">Please enter a name</string>
+    <string name="button_renameDiary">Submit Name</string>
+    <string name="feature_notImplemented">Feature not implemented yet!</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="updateEntry">Update Entry</string>
+</resources>
