@@ -17,14 +17,23 @@ import com.w20079934.models.EntryModel
 import com.w20079934.mydiary_2.R
 import kotlinx.android.synthetic.main.fragment_entry.*
 import kotlinx.android.synthetic.main.fragment_entry.view.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import androidx.appcompat.app.AlertDialog
+import com.w20079934.utils.*
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
 
-class EntryFragment : Fragment() {
+class EntryFragment : Fragment(), AnkoLogger, Callback<List<EntryModel>> {
 
     lateinit var app : DiaryApp
     var entry = EntryModel()
     var edit = false
     val IMAGE_REQUEST=1
     lateinit var image : ImageView
+
+    lateinit var loader : AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +48,7 @@ class EntryFragment : Fragment() {
 
         val root = inflater.inflate(R.layout.fragment_entry, container, false)
         activity?.title = getString(R.string.menu_new_entry)
+        loader = createLoader(activity!!)
 
         image = root.entryImage
         root.textView.setText("Dear ${app.entries.getName()}")
@@ -119,5 +129,30 @@ class EntryFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onFailure(call: Call<List<EntryModel>>, t: Throwable) {
+        info("Retrofit Error : $t.message")
+        serviceUnavailableMessage(activity!!)
+        hideLoader(loader)
+    }
+
+    override fun onResponse(call: Call<List<EntryModel>>,
+                            response: Response<List<EntryModel>>) {
+        serviceAvailableMessage(activity!!)
+        info("Retrofit JSON = $response.raw()")
+        app.entries.entries = response.body() as MutableList<EntryModel>
+        hideLoader(loader)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getAllEntries()
+    }
+
+    fun getAllEntries() {
+        showLoader(loader, "Getting Entries...")
+        var callGetAll = app.diaryService.getall()
+        callGetAll.enqueue(this)
     }
 }

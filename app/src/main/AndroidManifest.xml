@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.w20079934.mydiary_2">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:name="com.w20079934.main.DiaryApp"
         android:allowBackup="true"
@@ -10,6 +12,7 @@
         android:roundIcon="@mipmap/mydiary_v2"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyDiary_2">
+
         <activity android:name="com.w20079934.activities.Home">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
