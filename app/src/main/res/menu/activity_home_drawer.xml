@@ -18,6 +18,15 @@
             android:id="@+id/nav_renameDiary"
             android:icon="@android:drawable/ic_menu_info_details"
             android:title="Rename Diary"/>
+
+        <item android:title="Access Control">
+            <menu>
+                <item
+                    android:id="@+id/nav_sign_out"
+                    android:icon="@android:drawable/ic_menu_revert"
+                    android:title="@string/sign_out" />
+            </menu>
+        </item>
     </group>
 
 

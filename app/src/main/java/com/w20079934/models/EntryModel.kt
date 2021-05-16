@@ -10,6 +10,7 @@ data class EntryModel (
         var topic: String = "",
         var entry: String = "",
         var image: String = "",
+        var email: String = "test@test.com"
 ): Parcelable {
     override fun toString(): String = topic
 }

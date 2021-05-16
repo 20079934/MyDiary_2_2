@@ -21,6 +21,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import androidx.appcompat.app.AlertDialog
+import com.w20079934.activities.Login
 import com.w20079934.api.EntryWrapper
 import com.w20079934.utils.*
 import org.jetbrains.anko.AnkoLogger
@@ -28,13 +29,13 @@ import org.jetbrains.anko.info
 
 class EntryFragment : Fragment(), AnkoLogger, Callback<MutableList<EntryModel>> {
 
-    lateinit var app : DiaryApp
+    lateinit var app: DiaryApp
     var entry = EntryModel()
     var edit = false
-    val IMAGE_REQUEST=1
-    lateinit var image : ImageView
+    val IMAGE_REQUEST = 1
+    lateinit var image: ImageView
 
-    lateinit var loader : AlertDialog
+    lateinit var loader: AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,8 +44,8 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<MutableList<EntryModel>> 
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
 
         val root = inflater.inflate(R.layout.fragment_entry, container, false)
@@ -54,27 +55,25 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<MutableList<EntryModel>> 
         image = root.entryImage
         root.textView.setText("Dear ${app.diaryName}")
 
-        if(app.getCurrEntry()!=null) {
+        if (app.getCurrEntry() != null) {
             edit = true
             entry = app.getCurrEntry()!!
             root.entryTopic.setText(entry.topic)
             root.entryEntry.setText(entry.entry)
             root.btnAdd.text = getString(R.string.updateEntry)
 
-            root.removeEntry.setOnClickListener{
+            root.removeEntry.setOnClickListener {
                 app.entries.remove(entry)
                 app.finishEditingEntry()
                 activity!!.supportFragmentManager.popBackStack()//seems to remove going back to the previous fragment, but still needs a lot of back presses to exit
                 (activity as Home).openFragment(R.id.nav_Diary) // return user back to the diary after submitting it
             }
 
-            if (entry.image != "")
-            {
+            if (entry.image != "") {
                 root.entryImage.setImageBitmap(readImageFromPath(activity!!, entry.image))
                 root.chooseImage.text = getString(R.string.button_changeImage)
             }
-        }
-        else {
+        } else {
             root.removeEntry.visibility = View.INVISIBLE
         }
 
@@ -85,16 +84,20 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<MutableList<EntryModel>> 
         root.btnAdd.setOnClickListener()
         {
             if (entryEntry.text.isNotEmpty()) {
-                if(edit) {
+                if (edit) {
                     entry.topic = entryTopic.text.toString()
                     entry.entry = entryEntry.text.toString()
+
+                    updateEntry()
+
+
                     //TODO UPDATE app.entries.update(entry)
 
                 } else {
                     entry.topic = entryTopic.text.toString()
                     entry.entry = entryEntry.text.toString()
                     addEntry(entry)
-                //app.entries.create(entry.copy())
+                    //app.entries.create(entry.copy())
                 }
 
                 app.finishEditingEntry()
@@ -103,7 +106,8 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<MutableList<EntryModel>> 
 
 
             } else {
-                Toast.makeText(activity!!, getString(R.string.menu_invalidEntry), Toast.LENGTH_LONG).show()
+                Toast.makeText(activity!!, getString(R.string.menu_invalidEntry), Toast.LENGTH_LONG)
+                    .show()
             }
         }
 
@@ -114,9 +118,9 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<MutableList<EntryModel>> 
     companion object {
         @JvmStatic
         fun newInstance() =
-                EntryFragment().apply {
-                    arguments = Bundle().apply {}
-                }
+            EntryFragment().apply {
+                arguments = Bundle().apply {}
+            }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -126,7 +130,7 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<MutableList<EntryModel>> 
             IMAGE_REQUEST -> {
                 if (data != null) {
                     entry.image = data.data.toString()
-                    image.setImageBitmap(readImage(activity!!,resultCode,data))
+                    image.setImageBitmap(readImage(activity!!, resultCode, data))
                     chooseImage.text = getString(R.string.button_changeImage)
                 }
             }
@@ -139,8 +143,10 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<MutableList<EntryModel>> 
         hideLoader(loader)
     }
 
-    override fun onResponse(call: Call<MutableList<EntryModel>>,
-                            response: Response<MutableList<EntryModel>>) {
+    override fun onResponse(
+        call: Call<MutableList<EntryModel>>,
+        response: Response<MutableList<EntryModel>>
+    ) {
         serviceAvailableMessage(activity!!)
         info("Retrofit JSON = $response.raw()")
         app.entries = response.body() as MutableList<EntryModel>
@@ -158,9 +164,18 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<MutableList<EntryModel>> 
         callGetAll.enqueue(this)
     }
 
+    fun updateEntry()
+    {
+        showLoader(loader, "Updating Entry...")
+        var callUpdate = app.diaryService.put(
+            entry.id.toString(), app.auth.currentUser?.email!!, entry as EntryModel)
+        callUpdate.enqueue(this)
+    }
+
+
     fun addEntry(entry : EntryModel) {
         showLoader(loader, "Adding an entry...")
-        var callAdd = app.diaryService.post(entry)
+        var callAdd = app.diaryService.post(app.auth.currentUser?.email!!,entry)
         callAdd.enqueue(object : Callback<EntryWrapper> {
             override fun onFailure(call: Call<EntryWrapper>, t: Throwable) {
                 info("Retrofit Error : $t.message")

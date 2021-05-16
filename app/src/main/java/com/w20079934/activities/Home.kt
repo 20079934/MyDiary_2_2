@@ -17,6 +17,7 @@ import com.w20079934.main.DiaryApp
 import com.w20079934.mydiary_2.R
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.home.*
+import org.jetbrains.anko.startActivity
 import java.time.LocalDate
 
 class Home : AppCompatActivity(),
@@ -85,6 +86,9 @@ class Home : AppCompatActivity(),
                 app.finishEditingEntry()
                 navigateTo(RenameDiaryFragment.newInstance())
             }
+            R.id.nav_sign_out -> {
+                signOut()
+            }
             else -> Toast.makeText(this, getString(R.string.feature_notImplemented), Toast.LENGTH_SHORT).show()
         }
     }
@@ -108,6 +112,11 @@ class Home : AppCompatActivity(),
             super.onBackPressed()
     }
 
-
+    private fun signOut()
+    {
+        app.auth.signOut()
+        startActivity<Login>()
+        finish()
+    }
 
 }

@@ -13,19 +13,20 @@ interface DiaryService {
     @GET("/entries")
     fun getall(): Call<MutableList<EntryModel>>
 
-    @GET("/entries/{id}")
-    fun get(@Path("id") id: String): Call<EntryModel>
+    @GET("/entries/{email}")
+    fun get(@Path("email") id: String): Call<EntryModel>
 
-    @DELETE("/entries/{id}")
-    fun delete(@Path("id") id: String): Call<EntryModel>
+    @DELETE("/entries/{email}/{id}")
+    fun delete(@Path("id") id: String,
+                @Path("email") email: String): Call<EntryModel>
 
-    @POST("/entries")
-    fun post(@Body donation: EntryModel): Call<EntryWrapper>
+    @POST("/entries/{email}")
+    fun post(@Path("email") email: String, @Body donation: EntryModel): Call<EntryWrapper>
 
-    @PUT("/entries/{id}")
-    fun put(@Path("id") id: String,
+    @PUT("/entries/{email}/{id}")
+    fun put(@Path("id") id: String, @Path("email") email: String,
             @Body donation: EntryModel
-    ): Call<EntryWrapper>
+    ): Call<MutableList<EntryModel>>
 
     companion object {
 

@@ -34,4 +34,7 @@
     <string name="create_account">Sign up</string>
     <string name="sign_out">Sign out</string>
     <string name="verify_email">Verify email</string>
+    <string name="auth_failed">Authentication Failed</string>
+    <string name="emailpassword_status_fmt">Email User: %1$s (verified: %2$b)</string>
+    <string name="firebase_status_fmt">Firebase User: %s</string>
 </resources>

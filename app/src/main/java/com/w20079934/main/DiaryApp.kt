@@ -3,6 +3,7 @@ package com.w20079934.main
 
 import EntryJSONStore
 import android.app.Application
+import com.google.firebase.auth.FirebaseAuth
 import com.w20079934.api.DiaryService
 import com.w20079934.models.EntryModel
 import com.w20079934.models.EntryStore
@@ -13,6 +14,7 @@ class DiaryApp : Application() {
     var diaryName = "World"
     private var currEntry : EntryModel? = null
 
+    lateinit var auth: FirebaseAuth
 
 
     override fun onCreate() {
@@ -34,4 +36,6 @@ class DiaryApp : Application() {
     {
         currEntry = null
     }
+
+
 }

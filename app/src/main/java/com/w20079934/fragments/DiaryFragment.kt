@@ -2,11 +2,11 @@ package com.w20079934.fragments
 
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.w20079934.activities.Home
+import com.w20079934.activities.Login
 import com.w20079934.adapters.EntryAdapter
 import com.w20079934.adapters.EntryListener
 import com.w20079934.main.DiaryApp
@@ -94,4 +94,6 @@ class DiaryFragment : Fragment(), EntryListener, Callback<MutableList<EntryModel
         super.onResume()
         getAllEntries()
     }
+
+
 }
