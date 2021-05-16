@@ -31,7 +31,7 @@ class RenameDiaryFragment : Fragment() {
         activity?.title = "Rename Diary"
         root.submitName.setOnClickListener {
             if(diaryName.text.toString()!="") {
-            app.entries.updateName(diaryName.text.toString())
+            app.diaryName = diaryName.text.toString()
             activity!!.supportFragmentManager.popBackStack()//seems to remove going back to the previous fragment, but still needs a lot of back presses to exit
             (activity as Home).openFragment(R.id.nav_Diary) // return user back to the diary after submitting it
             }

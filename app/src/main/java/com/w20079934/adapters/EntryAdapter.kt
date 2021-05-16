@@ -13,7 +13,7 @@ interface EntryListener {
     fun onEntryClick(entry: EntryModel)
 }
 
-class EntryAdapter constructor(private var entries: List<EntryModel>, private val listener : EntryListener) : RecyclerView.Adapter<EntryAdapter.MainHolder>() {
+class EntryAdapter constructor(private var entries: MutableList<EntryModel>, private val listener : EntryListener) : RecyclerView.Adapter<EntryAdapter.MainHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainHolder {
         return MainHolder(
             LayoutInflater.from(parent.context).inflate(
@@ -40,4 +40,10 @@ class EntryAdapter constructor(private var entries: List<EntryModel>, private va
             itemView.setOnClickListener {listener.onEntryClick(entry)}
         }
     }
+
+    fun removeAt(position: Int) {
+        entries.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
 }

@@ -8,16 +8,15 @@ import com.w20079934.models.EntryModel
 import com.w20079934.models.EntryStore
 
 class DiaryApp : Application() {
-    lateinit var entries : EntryJSONStore
+    lateinit var entries : MutableList<EntryModel>
     lateinit var diaryService: DiaryService
-
+    var diaryName = "World"
     private var currEntry : EntryModel? = null
 
 
 
     override fun onCreate() {
         super.onCreate()
-        entries = EntryJSONStore(applicationContext)
         diaryService = DiaryService.create()
     }
 

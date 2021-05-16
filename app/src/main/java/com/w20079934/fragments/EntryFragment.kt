@@ -21,11 +21,12 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import androidx.appcompat.app.AlertDialog
+import com.w20079934.api.EntryWrapper
 import com.w20079934.utils.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 
-class EntryFragment : Fragment(), AnkoLogger, Callback<List<EntryModel>> {
+class EntryFragment : Fragment(), AnkoLogger, Callback<MutableList<EntryModel>> {
 
     lateinit var app : DiaryApp
     var entry = EntryModel()
@@ -51,7 +52,7 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<List<EntryModel>> {
         loader = createLoader(activity!!)
 
         image = root.entryImage
-        root.textView.setText("Dear ${app.entries.getName()}")
+        root.textView.setText("Dear ${app.diaryName}")
 
         if(app.getCurrEntry()!=null) {
             edit = true
@@ -87,12 +88,13 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<List<EntryModel>> {
                 if(edit) {
                     entry.topic = entryTopic.text.toString()
                     entry.entry = entryEntry.text.toString()
-                    app.entries.update(entry)
+                    //TODO UPDATE app.entries.update(entry)
 
                 } else {
                     entry.topic = entryTopic.text.toString()
                     entry.entry = entryEntry.text.toString()
-                    app.entries.create(entry.copy())
+                    addEntry(entry)
+                //app.entries.create(entry.copy())
                 }
 
                 app.finishEditingEntry()
@@ -131,17 +133,17 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<List<EntryModel>> {
         }
     }
 
-    override fun onFailure(call: Call<List<EntryModel>>, t: Throwable) {
+    override fun onFailure(call: Call<MutableList<EntryModel>>, t: Throwable) {
         info("Retrofit Error : $t.message")
         serviceUnavailableMessage(activity!!)
         hideLoader(loader)
     }
 
-    override fun onResponse(call: Call<List<EntryModel>>,
-                            response: Response<List<EntryModel>>) {
+    override fun onResponse(call: Call<MutableList<EntryModel>>,
+                            response: Response<MutableList<EntryModel>>) {
         serviceAvailableMessage(activity!!)
         info("Retrofit JSON = $response.raw()")
-        app.entries.entries = response.body() as MutableList<EntryModel>
+        app.entries = response.body() as MutableList<EntryModel>
         hideLoader(loader)
     }
 
@@ -154,5 +156,25 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<List<EntryModel>> {
         showLoader(loader, "Getting Entries...")
         var callGetAll = app.diaryService.getall()
         callGetAll.enqueue(this)
+    }
+
+    fun addEntry(entry : EntryModel) {
+        showLoader(loader, "Adding an entry...")
+        var callAdd = app.diaryService.post(entry)
+        callAdd.enqueue(object : Callback<EntryWrapper> {
+            override fun onFailure(call: Call<EntryWrapper>, t: Throwable) {
+                info("Retrofit Error : $t.message")
+                serviceUnavailableMessage(activity!!)
+                hideLoader(loader)
+            }
+
+            override fun onResponse(call: Call<EntryWrapper>,
+                                    response: Response<EntryWrapper>) {
+                val donationWrapper = response.body()
+                info("Retrofit Wrapper : $donationWrapper")
+                getAllEntries()
+                hideLoader(loader)
+            }
+        })
     }
 }

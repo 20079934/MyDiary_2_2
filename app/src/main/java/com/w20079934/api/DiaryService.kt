@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 
 interface DiaryService {
     @GET("/entries")
-    fun getall(): Call<List<EntryModel>>
+    fun getall(): Call<MutableList<EntryModel>>
 
     @GET("/entries/{id}")
     fun get(@Path("id") id: String): Call<EntryModel>
@@ -29,7 +29,7 @@ interface DiaryService {
 
     companion object {
 
-        val serviceURL = ""
+        val serviceURL = "127.0.0.1"
 
         fun create() : DiaryService {
 

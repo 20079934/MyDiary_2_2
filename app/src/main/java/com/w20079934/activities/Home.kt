@@ -68,7 +68,8 @@ class Home : AppCompatActivity(),
             R.id.nav_newEntry -> {
                 if(app.getCurrEntry()==null) {
                     val currDate = LocalDate.now()
-                    app.entries.findAll().forEach {
+
+                    app.entries.forEach {
                         //if same date
                         if (it.date.get("day") == currDate.dayOfMonth && it.date.get("month") == currDate.monthValue && it.date.get(
                                         "year"
