@@ -9,6 +9,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.FirebaseDatabase
+import com.w20079934.main.DiaryApp
 import com.w20079934.mydiary_2.R
 import com.w20079934.utils.createLoader
 import com.w20079934.utils.hideLoader
@@ -29,6 +31,8 @@ import org.jetbrains.anko.startActivity
 
 class Login : AppCompatActivity(), View.OnClickListener, AnkoLogger {
 
+    lateinit var app: DiaryApp
+
     // [START declare_auth]
     private lateinit var auth: FirebaseAuth
     // [END declare_auth]
@@ -37,6 +41,7 @@ class Login : AppCompatActivity(), View.OnClickListener, AnkoLogger {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login)
+        app = application as DiaryApp
 
         // Buttons
         emailSignInButton.setOnClickListener(this)
@@ -193,6 +198,7 @@ class Login : AppCompatActivity(), View.OnClickListener, AnkoLogger {
             signedInButtons.visibility = View.VISIBLE
 
             verifyEmailButton.isEnabled = !user.isEmailVerified
+            app.database = FirebaseDatabase.getInstance().reference
             startActivity<Home>()
         } else {
             status.setText(R.string.signed_out)

@@ -21,6 +21,10 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.ReportFragment
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.w20079934.activities.Login
 import com.w20079934.api.EntryWrapper
 import com.w20079934.utils.*
@@ -83,20 +87,18 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<MutableList<EntryModel>> 
         }
         root.btnAdd.setOnClickListener()
         {
+            entry.email = app.auth.currentUser?.email!!
             if (entryEntry.text.isNotEmpty()) {
                 if (edit) {
                     entry.topic = entryTopic.text.toString()
                     entry.entry = entryEntry.text.toString()
 
-                    updateEntry()
-
-
-                    //TODO UPDATE app.entries.update(entry)
-
+                    updateEntry(entry.id, entry)
+                    updateUserEntry(app.auth.currentUser!!.uid, entry!!.id, entry)
                 } else {
                     entry.topic = entryTopic.text.toString()
                     entry.entry = entryEntry.text.toString()
-                    addEntry(entry)
+                    writeNewEntry(entry)
                     //app.entries.create(entry.copy())
                 }
 
@@ -164,12 +166,39 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<MutableList<EntryModel>> 
         callGetAll.enqueue(this)
     }
 
-    fun updateEntry()
+    fun updateUserEntry(userId: String, uid: String?, entry: EntryModel) {
+        app.database.child("user-donations").child(userId).child(uid!!)
+            .addListenerForSingleValueEvent(
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        snapshot.ref.setValue(entry)
+                        activity!!.supportFragmentManager.beginTransaction()
+                            .replace(R.id.homeFrame, DiaryFragment.newInstance())
+                            .addToBackStack(null)
+                            .commit()
+                        hideLoader(loader)
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        info("Firebase Donation error : ${error.message}")
+                    }
+                })
+    }
+
+    fun updateEntry(uid: String?, entry: EntryModel)
     {
-        showLoader(loader, "Updating Entry...")
-        var callUpdate = app.diaryService.put(
-            entry.id.toString(), app.auth.currentUser?.email!!, entry as EntryModel)
-        callUpdate.enqueue(this)
+        app.database.child("entries").child(uid!!)
+            .addListenerForSingleValueEvent(
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        snapshot.ref.setValue(entry)
+                        hideLoader(loader)
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        info("Firebase Entry error : ${error.message}")
+                    }
+                })
     }
 
 
@@ -191,5 +220,26 @@ class EntryFragment : Fragment(), AnkoLogger, Callback<MutableList<EntryModel>> 
                 hideLoader(loader)
             }
         })
+    }
+
+    fun writeNewEntry(entry: EntryModel) {
+        // Create new donation at /donations & /donations/$uid
+        showLoader(loader, "Adding Entry to Firebase")
+        info("Firebase DB Reference : $app.database")
+        val uid = app.auth.currentUser!!.uid
+        val key = app.database.child("entries").push().key
+        if (key == null) {
+            info("Firebase Error : Key Empty")
+            return
+        }
+        entry.id = key
+        val entryValues = entry.toMap()
+
+        val childUpdates = HashMap<String, Any>()
+        childUpdates["/entries/$key"] = entryValues
+        childUpdates["/user-entries/$uid/$key"] = entryValues
+
+        app.database.updateChildren(childUpdates)
+        hideLoader(loader)
     }
 }

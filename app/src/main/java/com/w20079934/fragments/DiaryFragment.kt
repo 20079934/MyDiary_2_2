@@ -5,6 +5,9 @@ import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.w20079934.activities.Home
 import com.w20079934.activities.Login
 import com.w20079934.adapters.EntryAdapter
@@ -92,8 +95,33 @@ class DiaryFragment : Fragment(), EntryListener, Callback<MutableList<EntryModel
 
     override fun onResume() {
         super.onResume()
-        getAllEntries()
+        getAllEntries(app.auth.currentUser!!.uid)
     }
 
+    fun getAllEntries(userId: String?) {
+        showLoader(loader, "Downloading Donations from Firebase")
+        var entryList = ArrayList<EntryModel>()
+        app.database.child("user-entries").child(userId!!)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+                    info("Firebase Entry error : ${error.message}")
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val children = snapshot!!.children
+                    children.forEach {
+                        val entry = it.getValue<EntryModel>(EntryModel::class.java!!)
+
+                        entryList.add(entry!!)
+                        app.entries = entryList
+                        root.recyclerView.adapter =
+                            EntryAdapter(app.entries, this@DiaryFragment)
+                        root.recyclerView.adapter?.notifyDataSetChanged()
+                        hideLoader(loader)
+                        app.database.child("user-donations").child(userId!!).removeEventListener(this)
+                    }
+                }
+            })
+    }
 
 }
